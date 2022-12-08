@@ -1,0 +1,9 @@
+.button {
+  width: 12rem;
+  height: 2rem;
+  padding: 0.3rem 2rem;
+}
+.button:hover {
+  font-style: italic;
+  cursor: pointer;
+}

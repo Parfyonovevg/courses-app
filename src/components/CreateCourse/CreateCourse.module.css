@@ -1,0 +1,65 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+  text-align: left;
+}
+.header button {
+  height: 2rem;
+}
+.title {
+  display: flex;
+  justify-content: space-between;
+}
+.description {
+  text-align: left;
+}
+textarea {
+  width: 100%;
+}
+.infoBlock {
+  display: flex;
+}
+.information {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 50%;
+  width: 100%;
+  text-align: left;
+}
+.information input {
+  width: 35rem;
+  margin-bottom: 1rem;
+}
+.information p {
+  margin: 0.3rem;
+}
+.information button {
+  margin: 0 auto 3rem auto;
+}
+.authors {
+  flex: 0 0 50%;
+}
+.author {
+  display: flex;
+  justify-content: space-between;
+  margin: 1rem 0;
+  height: 2rem;
+  align-items: center;
+}
+.titles {
+  text-align: center;
+  font-weight: 600;
+}
+.duration {
+  font-size: 1.2rem;
+}
+.duration span {
+  font-weight: 500;
+  font-size: 1.4rem;
+}
+.courseAuthors {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}

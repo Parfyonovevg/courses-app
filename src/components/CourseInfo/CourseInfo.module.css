@@ -1,0 +1,28 @@
+.courseInfo {
+  border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+  width: 70%;
+  margin: 0 auto;
+  padding: 1rem;
+}
+.courseInfo button {
+  border: none;
+  background: inherit;
+  text-align: left;
+}
+.courseInfo button:hover {
+  cursor: pointer;
+}
+.text {
+  display: flex;
+  text-align: left;
+  gap: 6rem;
+}
+.description {
+  flex: 0 0 60%;
+  line-height: 1.3;
+}
+.info span {
+  font-weight: 700;
+}
