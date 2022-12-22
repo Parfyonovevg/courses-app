@@ -2,23 +2,30 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { pipeDuration } from '../../helpers/pipeDuration';
 import { dateGenerator } from '../../helpers/dateGenerator';
+import Course from '../../models/course';
+import { useAppSelector } from '../../hooks';
 
 import styles from './CourseInfo.module.css';
+import { getAuthors, getCourses } from '../../store/selectors';
 
-const CourseInfo = (props) => {
+const CourseInfo: React.FC = () => {
+  const courses = useAppSelector(getCourses);
+  const allAuthors = useAppSelector(getAuthors);
   const navigate = useNavigate();
-  const params = useParams();
-  const course = props.allCourses.find(
-    (course) => course.id === params.courseId
-  );
-  const duration = pipeDuration(course.duration);
-  const dateOfCreation = dateGenerator(course.creationDate);
+  const { courseId } = useParams();
 
-  const authorsNames = (arrayOfId) => {
-    let authors = [];
-    arrayOfId.forEach((element) => {
-      props.authors.forEach((author) => {
-        if (author.id === element) {
+  const course: Course | undefined = courses.find(
+    (course) => course.id === courseId
+  );
+
+  const duration = pipeDuration(course!.duration);
+  const dateOfCreation = dateGenerator(course!.creationDate);
+
+  const getAuthorsNames = (authorsId: string[]) => {
+    let authors: string[] = [];
+    authorsId.forEach((id) => {
+      allAuthors.forEach((author) => {
+        if (author.id === id) {
           authors.push(author.name);
         }
       });
@@ -26,22 +33,19 @@ const CourseInfo = (props) => {
     return authors;
   };
 
-  const authors = authorsNames(course.authors).join(', ');
+  const authors = getAuthorsNames(course!.authors).join(', ');
 
   return (
     <div className={styles.courseInfo}>
-      <button onClick={() => navigate('/courses')}>
-        &#60; back to courses
-      </button>
-
+      <button onClick={() => navigate(-1)}>&#60; back to courses</button>
       <div>
-        <h2>{course.title}</h2>
+        <h2>{course?.title}</h2>
         <div className={styles.text}>
-          <p className={styles.description}>{course.description}</p>
+          <p className={styles.description}>{course!.description}</p>
           <div className={styles.info}>
             <p>
               <span>ID: </span>
-              {course.id}
+              {course?.id}
             </p>
             <p>
               <span>Duration: </span>

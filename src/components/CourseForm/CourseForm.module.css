@@ -15,6 +15,7 @@
   text-align: left;
 }
 textarea {
+  height: 10rem;
   width: 100%;
 }
 .infoBlock {

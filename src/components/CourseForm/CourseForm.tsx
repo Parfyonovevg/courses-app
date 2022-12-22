@@ -1,64 +1,82 @@
 import React, { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import { pipeDuration } from '../../helpers/pipeDuration';
 import { BUTTON_TEXT, INPUT_TEXT } from '../../constants';
+import { useAppSelector } from '../../hooks';
 
 import Button from '../../common/Button/Button';
 import Input from '../../common/Input/Input';
+import Author from '../../models/author';
+import styles from './CourseForm.module.css';
+import { useDispatch } from 'react-redux';
+import { createCourse } from '../../store/courses/reducer';
+import { getAuthors } from '../../store/selectors';
 
-import styles from './CreateCourse.module.css';
+import { createAuthor } from '../../store/authors/reducer';
 
-const CreateCourse = (props) => {
-  const [courseAuthors, setCourseAuthors] = useState([]);
+const CreateCourse: React.FC = () => {
+  const { courseId } = useParams();
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [courseAuthors, setCourseAuthors] = useState<Author[]>([]);
   const [courseTitle, setCourseTitle] = useState('');
   const [courseDescription, setCourseDescription] = useState('');
   const [newAuthorName, setNewAuthorName] = useState('');
-  const [durationInMinutes, setDurationInMinutes] = useState(null);
+  const [durationInMinutes, setDurationInMinutes] = useState<number>(0);
 
-  const setDuration = (event) => setDurationInMinutes(event.target.value);
-
+  const allAuthors = useAppSelector(getAuthors);
   const duration = pipeDuration(durationInMinutes);
+  const today = new Date().toISOString();
 
-  const addingTitle = (event) => setCourseTitle(event.target.value);
-  const addingDescription = (event) => setCourseDescription(event.target.value);
+  const addingTitle = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setCourseTitle(event.target.value);
 
-  let today = new Date().toLocaleDateString();
+  const addingDescription = (event: React.ChangeEvent<HTMLTextAreaElement>) =>
+    setCourseDescription(event.target.value);
 
-  const addingAuthor = (event) => setNewAuthorName(event.target.value);
-  const createAuthor = () => {
-    props.createNewAuthor(newAuthorName);
+  const setDuration = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setDurationInMinutes(Number(event.target.value));
+
+  const addingAuthor = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setNewAuthorName(event.target.value);
+
+  const createAuthorHandler = () => {
+    dispatch(createAuthor(newAuthorName));
     setNewAuthorName('');
   };
 
-  const addAuthorToCourse = (author) => {
+  const addAuthorToCourse = (author: Author) => {
     setCourseAuthors((prev) => {
       return [...prev, author];
     });
   };
 
-  const deleteAuthor = (id) => {
+  const deleteAuthorFromCourse = (id: string) => {
     setCourseAuthors((prev) => prev.filter((el) => el.id !== id));
+    console.log(allAuthors);
   };
 
-  const createCourse = () => {
-    if (
-      courseTitle &&
-      courseDescription &&
-      courseAuthors.length > 0 &&
-      durationInMinutes > 0
-    ) {
-      props.addNewCourse({
+  const createCourseHandler = () => {
+    if (duration && courseAuthors && courseDescription && courseTitle) {
+      const newCourse = {
         title: courseTitle,
         description: courseDescription,
-        authors: courseAuthors.map((author) => author.id),
-        duration: durationInMinutes,
         creationDate: today,
-        id: uuidv4(),
-      });
+        duration: durationInMinutes,
+        authors: courseAuthors.map((author) => author.id),
+      };
+      dispatch(createCourse(newCourse));
+      navigate('/courses');
     } else {
-      alert('Please, fill all fields');
+      alert('Fill all fields');
     }
+  };
+
+  const test = () => {
+    console.log();
   };
 
   return (
@@ -70,20 +88,18 @@ const CreateCourse = (props) => {
             placeholder={INPUT_TEXT.new_course_title_placeholder}
             type={INPUT_TEXT.type_text}
             onChange={addingTitle}
+            value={courseTitle}
           />
 
           <Button
             text={BUTTON_TEXT.create_new_course_text}
-            onClick={createCourse}
+            onClick={createCourseHandler}
           />
         </div>
 
         <div className={styles.description}>
           <p>{INPUT_TEXT.new_course_description_label}</p>
           <textarea
-            rows='4'
-            label={INPUT_TEXT.new_course_description_label}
-            type='text'
             placeholder={INPUT_TEXT.new_course_description_placeholder}
             onChange={addingDescription}
           />
@@ -101,8 +117,9 @@ const CreateCourse = (props) => {
           />
           <Button
             text={BUTTON_TEXT.create_author_text}
-            onClick={createAuthor}
+            onClick={createAuthorHandler}
           />
+          <button onClick={test}>TEST</button>
 
           <p className={styles.titles}>Duration</p>
           <Input
@@ -118,13 +135,22 @@ const CreateCourse = (props) => {
         </div>
         <div className={styles.authors}>
           <p className={styles.titles}>Authors</p>
-          {props.allAuthors.map((author) => (
+          {allAuthors.map((author) => (
             <div className={styles.author} key={author.id}>
               <p>{author.name}</p>
               <Button
                 text={BUTTON_TEXT.add_author_text}
                 onClick={() => addAuthorToCourse(author)}
               />
+
+              {/* <button
+                onClick={() => {
+                  dispatch(deleteAuthor(author.id));
+                  console.log(author.id);
+                }}
+              >
+                DELETE
+              </button> */}
             </div>
           ))}
           <p className={styles.titles}>Course author</p>
@@ -133,7 +159,7 @@ const CreateCourse = (props) => {
               <span key={author.id}>{author.name}</span>
               <Button
                 text={BUTTON_TEXT.delete_author_text}
-                onClick={() => deleteAuthor(author.id)}
+                onClick={() => deleteAuthorFromCourse(author.id)}
               />
             </div>
           ))}

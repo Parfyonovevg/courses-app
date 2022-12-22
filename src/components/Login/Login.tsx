@@ -8,14 +8,23 @@ import Input from '../../common/Input/Input';
 
 import styles from './Login.module.css';
 
-const Login = (props) => {
+const Login: React.FC<{
+  successLogin: (
+    name: string,
+    token: string,
+    email: string,
+    password: string
+  ) => void;
+}> = (props) => {
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
 
   const navigate = useNavigate();
 
-  const emailInput = (event) => setUserEmail(event.target.value);
-  const passwordInput = (event) => setUserPassword(event.target.value);
+  const emailInput = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setUserEmail(event.target.value);
+  const passwordInput = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setUserPassword(event.target.value);
 
   async function login() {
     const user = {
@@ -24,15 +33,15 @@ const Login = (props) => {
     };
     try {
       await axios
-        .post(
-          'http://localhost:4000/login',
-          // 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBEOSyKidtKyeyRUbo24OXMctsW1m4JeVk',
-          user
-        )
+        .post('http://localhost:4000/login', user)
         .then(function (response) {
           if (response.status >= 200 && response.status < 300) {
-            props.successLogin(response.data.user.name, response.data.result);
-            console.log(response.data.result);
+            props.successLogin(
+              response.data.user.name,
+              response.data.result,
+              response.data.user.email,
+              response.data.user.password
+            );
             navigate('/courses');
           }
         })
@@ -43,7 +52,7 @@ const Login = (props) => {
       console.error(error);
     }
   }
-  const loginConfirm = (event) => {
+  const loginConfirm = (event: React.FormEvent) => {
     event.preventDefault();
     login();
     setUserEmail('');

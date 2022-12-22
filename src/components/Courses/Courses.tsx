@@ -7,19 +7,27 @@ import { SearchBar } from './components/SearchBar';
 
 import { BUTTON_TEXT } from '../../constants';
 import { pipeDuration } from '../../helpers/pipeDuration';
+import { useAppSelector } from '../../hooks';
 
 import styles from './Courses.module.css';
+import { getUser } from '../../store/selectors';
 
-const Courses = (props) => {
+const Courses: React.FC = () => {
+  const allCourses = useAppSelector((state) => state.courses.list);
+  const allAuthors = useAppSelector((state) => state.authors.list);
+
   const [searchInput, setSearchInput] = useState('');
-  const [visibleCourses, setVisibleCourses] = useState(props.allCourses);
+  const [visibleCourses, setVisibleCourses] = useState(allCourses);
 
-  const search = (value) => setSearchInput(value);
+  const user = useAppSelector(getUser);
 
-  const authorsNames = (arrayOfId) => {
-    let authors = [];
+  useEffect(() => setVisibleCourses(allCourses), [allCourses]);
+
+  const search = (value: string) => setSearchInput(value);
+  const authorsNames = (arrayOfId: string[]) => {
+    let authors: string[] = [];
     arrayOfId.forEach((element) => {
-      props.authors.forEach((author) => {
+      allAuthors.forEach((author) => {
         if (author.id === element) {
           authors.push(author.name);
         }
@@ -28,20 +36,20 @@ const Courses = (props) => {
     return authors;
   };
 
-  useEffect(() => {
-    setVisibleCourses(props.allCourses);
-  }, [props.allCourses]);
-
   const confirmSearch = () => {
     setVisibleCourses(
-      props.allCourses.filter(
+      allCourses.filter(
         (course) =>
           course.title.toLowerCase().includes(searchInput) ||
           course.id.toLowerCase().includes(searchInput)
       )
     );
   };
-  const reset = () => setVisibleCourses(props.allCourses);
+  const reset = () => setVisibleCourses(allCourses);
+
+  const coursesDate = () => {
+    return allCourses.map((course) => course.creationDate);
+  };
 
   return (
     <>
@@ -51,10 +59,11 @@ const Courses = (props) => {
           confirmSearch={confirmSearch}
           reset={reset}
         />
-
-        <Link to='/courses/add'>
-          <Button text={BUTTON_TEXT.add_new_course_text} />
-        </Link>
+        {user.role === 'admin' && (
+          <Link to='/courses/add'>
+            <Button text={BUTTON_TEXT.add_new_course_text} />
+          </Link>
+        )}
       </div>
       {visibleCourses.map((course) => (
         <CourseCard

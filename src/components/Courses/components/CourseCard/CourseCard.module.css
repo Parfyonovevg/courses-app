@@ -10,7 +10,7 @@
   flex: 0 0 70%;
 }
 .information {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   overflow: hidden;
 }
 .information span {
@@ -22,3 +22,22 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.buttons {
+  display: flex;
+  gap: 1rem;
+}
+.adminButtons {
+  display: flex;
+  width: 1rem;
+  gap: 1rem;
+}
+.adminButtons button {
+  width: 1rem;
+}
+/* .adminButtons img {
+  width: 2rem;
+  height: 2rem;
+  background-color: none;
+  padding: auto;
+  margin: auto
+} */

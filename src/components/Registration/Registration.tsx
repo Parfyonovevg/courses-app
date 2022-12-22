@@ -7,7 +7,7 @@ import Input from '../../common/Input/Input';
 
 import styles from './Registration.module.css';
 
-const Registration = () => {
+const Registration: React.FC = () => {
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userPassword, setUserPassword] = useState('');
@@ -41,11 +41,14 @@ const Registration = () => {
     }
   }
 
-  const nameInput = (event) => setUserName(event.target.value);
-  const emailInput = (event) => setUserEmail(event.target.value);
-  const passwordInput = (event) => setUserPassword(event.target.value);
+  const nameInput = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setUserName(event.target.value);
+  const emailInput = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setUserEmail(event.target.value);
+  const passwordInput = (event: React.ChangeEvent<HTMLInputElement>) =>
+    setUserPassword(event.target.value);
 
-  const registration = async (event) => {
+  const registration = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     sendNewUser();
