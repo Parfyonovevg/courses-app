@@ -3,17 +3,19 @@ import axios from 'axios';
 
 import Course from '../../models/course';
 
-export const fetchCourses = createAsyncThunk<Course[]>(
-  'courses/fetchCourses',
-  async function getCourses(_, { rejectWithValue }) {
-    try {
-      const response = await axios.get('http://localhost:4000/courses/all');
-      return response.data.result;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
-    }
+export const fetchCourses = createAsyncThunk<
+  Course[],
+  undefined,
+  { rejectValue: string }
+>('courses/fetchCourses', async function getCourses(_, { rejectWithValue }) {
+  try {
+    const response = await axios.get('http://localhost:4000/courses/all');
+    console.log(response.data.result);
+    return response.data.result;
+  } catch (error: any) {
+    return rejectWithValue(error.message);
   }
-);
+});
 
 export const deleteCourse = createAsyncThunk(
   'courses/deleteCourse',
@@ -21,14 +23,11 @@ export const deleteCourse = createAsyncThunk(
     const token = getState().user.user.token;
 
     try {
-      const response = await axios.delete(
-        `http://localhost:4000/courses/${id}`,
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
+      await axios.delete(`http://localhost:4000/courses/${id}`, {
+        headers: {
+          Authorization: token,
+        },
+      });
       dispatch(removeCourse(id));
     } catch (error: any) {
       return rejectWithValue(error.message);
@@ -37,7 +36,7 @@ export const deleteCourse = createAsyncThunk(
 );
 export const createCourse = createAsyncThunk(
   'courses/createCourse',
-  async function (course: Course, { rejectWithValue, dispatch, getState }) {
+  async function (course, { rejectWithValue, dispatch, getState }) {
     const token = getState().user.user.token;
 
     try {
@@ -52,6 +51,27 @@ export const createCourse = createAsyncThunk(
       );
       const newCourse = response.data.result;
       dispatch(addCourse(newCourse));
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+export const updateCourse = createAsyncThunk(
+  'courses/updateCourse',
+  async function (course, { rejectWithValue, dispatch, getState }) {
+    const token = getState().user.user.token;
+    try {
+      const response = await axios.put(
+        `http://localhost:4000/courses/${course.id}`,
+        course,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      const upgradedCourse = response.data.result;
+      dispatch(changeCourse(upgradedCourse));
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
@@ -85,6 +105,14 @@ const coursesSlice = createSlice({
       });
     },
   },
+  // extraReducers: (builder) => {
+  //   builder
+  //     .addCase(fetchCourses.pending, () => console.log('pending'))
+  //     .addCase(
+  //       fetchCourses.fulfilled,
+  //       (state, action) => (state.list = action.payload)
+  //     );
+  // },
 
   extraReducers: {
     [fetchCourses.pending]: () => {

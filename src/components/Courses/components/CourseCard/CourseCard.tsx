@@ -23,11 +23,9 @@ const CourseCard: React.FC<{
   authors: string[];
 }> = (props) => {
   const authorsRow = props.authors.join(', ');
-  const dateOfCreation = dateGenerator(props.creationDate);
   const user = useAppSelector(getUser);
   const dispatch = useDispatch();
 
-  // console.log(new Date().toISOString());
 
   const deleteHandler = () => {
     dispatch(deleteCourse(props.id));
@@ -49,7 +47,7 @@ const CourseCard: React.FC<{
           {`${props.duration.hours}:${props.duration.minutes} hours`}
         </p>
         <p>
-          <span>Created: </span> {dateOfCreation}
+          <span>Created: </span> {props.creationDate}
         </p>
         <div className={styles.buttons}>
           <Link to={`/courses/${props.id}`}>

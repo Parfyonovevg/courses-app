@@ -1,7 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { pipeDuration } from '../../helpers/pipeDuration';
-import { dateGenerator } from '../../helpers/dateGenerator';
 import Course from '../../models/course';
 import { useAppSelector } from '../../hooks';
 
@@ -19,7 +18,6 @@ const CourseInfo: React.FC = () => {
   );
 
   const duration = pipeDuration(course!.duration);
-  const dateOfCreation = dateGenerator(course!.creationDate);
 
   const getAuthorsNames = (authorsId: string[]) => {
     let authors: string[] = [];
@@ -53,7 +51,7 @@ const CourseInfo: React.FC = () => {
             </p>
             <p>
               <span>Created: </span>
-              {dateOfCreation}
+              {course.creationDate}
             </p>
             <p>
               <span>Authors: </span>

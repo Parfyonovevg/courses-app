@@ -16,7 +16,9 @@ import { fetchAuthors } from './store/authors/reducer';
 import { login } from './store/user/reducer';
 import { getUser } from './store/selectors';
 import PrivateRouter from './components/PrivateRouter/PrivateRouter';
-import TestEl from './TestEl';
+
+import EditCoursePage from './pages/EditCoursePage';
+
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -88,7 +90,7 @@ const App: React.FC = () => {
             path='/courses/update/:courseId'
             element={
               <PrivateRouter>
-                <TestEl />
+                <EditCoursePage />
               </PrivateRouter>
             }
           />

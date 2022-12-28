@@ -1,35 +1,45 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { pipeDuration } from '../../helpers/pipeDuration';
 import { BUTTON_TEXT, INPUT_TEXT } from '../../constants';
-import { useAppSelector } from '../../hooks';
+import { useAppSelector, useAppDispatch } from '../../hooks';
 
 import Button from '../../common/Button/Button';
 import Input from '../../common/Input/Input';
 import Author from '../../models/author';
+import Course from '../../models/course';
 import styles from './CourseForm.module.css';
-import { useDispatch } from 'react-redux';
-import { createCourse } from '../../store/courses/reducer';
-import { getAuthors } from '../../store/selectors';
+import { createCourse, updateCourse } from '../../store/courses/reducer';
+import { getAuthors, getCourses } from '../../store/selectors';
 
-import { createAuthor } from '../../store/authors/reducer';
+import { createAuthor, deleteAuthor } from '../../store/authors/reducer';
+import { dateGenerator } from '../../helpers/dateGenerator';
 
-const CreateCourse: React.FC = () => {
-  const { courseId } = useParams();
-
-  const dispatch = useDispatch();
+const CourseForm: React.FC<{ course: Course }> = ({ course }) => {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const [courseAuthors, setCourseAuthors] = useState<Author[]>([]);
   const [courseTitle, setCourseTitle] = useState('');
   const [courseDescription, setCourseDescription] = useState('');
   const [newAuthorName, setNewAuthorName] = useState('');
-  const [durationInMinutes, setDurationInMinutes] = useState<number>(0);
+  const [durationInMinutes, setDurationInMinutes] = useState<string>('');
 
   const allAuthors = useAppSelector(getAuthors);
+  const allCourses = useAppSelector(getCourses);
+
   const duration = pipeDuration(durationInMinutes);
-  const today = new Date().toISOString();
+  const today = dateGenerator();
+
+  useEffect(() => {
+    if (course) {
+      setCourseTitle(course.title);
+      setCourseDescription(course.description);
+      setDurationInMinutes(course.duration);
+      setCourseAuthors(course.authors);
+    }
+  }, [course]);
 
   const addingTitle = (event: React.ChangeEvent<HTMLInputElement>) =>
     setCourseTitle(event.target.value);
@@ -38,7 +48,7 @@ const CreateCourse: React.FC = () => {
     setCourseDescription(event.target.value);
 
   const setDuration = (event: React.ChangeEvent<HTMLInputElement>) =>
-    setDurationInMinutes(Number(event.target.value));
+    setDurationInMinutes(event.target.value);
 
   const addingAuthor = (event: React.ChangeEvent<HTMLInputElement>) =>
     setNewAuthorName(event.target.value);
@@ -50,13 +60,25 @@ const CreateCourse: React.FC = () => {
 
   const addAuthorToCourse = (author: Author) => {
     setCourseAuthors((prev) => {
-      return [...prev, author];
+      return [...prev, author.id];
     });
   };
 
-  const deleteAuthorFromCourse = (id: string) => {
-    setCourseAuthors((prev) => prev.filter((el) => el.id !== id));
-    console.log(allAuthors);
+  const updateCourseHandler = () => {
+    if (duration && courseAuthors && courseDescription && courseTitle) {
+      const newCourse = {
+        title: courseTitle,
+        description: courseDescription,
+        creationDate: course.creationDate,
+        duration: +durationInMinutes,
+        authors: courseAuthors,
+        id: course.id,
+      };
+      dispatch(updateCourse(newCourse));
+      navigate('/courses');
+    } else {
+      alert('Fill all fields');
+    }
   };
 
   const createCourseHandler = () => {
@@ -65,8 +87,8 @@ const CreateCourse: React.FC = () => {
         title: courseTitle,
         description: courseDescription,
         creationDate: today,
-        duration: durationInMinutes,
-        authors: courseAuthors.map((author) => author.id),
+        duration: +durationInMinutes,
+        authors: courseAuthors,
       };
       dispatch(createCourse(newCourse));
       navigate('/courses');
@@ -75,8 +97,26 @@ const CreateCourse: React.FC = () => {
     }
   };
 
+  const authorsOfCourse = (arrayOfId: string[]) => {
+    let authors: string[] = [];
+    arrayOfId.forEach((element) => {
+      allAuthors.forEach((author) => {
+        if (author.id === element) {
+          authors.push(author);
+        }
+      });
+    });
+    return authors;
+  };
+
+  const deleteAuthorFromCourse = (id: string) => {
+    setCourseAuthors((prev) => prev.filter((el) => el !== id));
+  };
+
   const test = () => {
-    console.log();
+    console.log(courseAuthors);
+    console.log(allAuthors);
+    console.log(allCourses);
   };
 
   return (
@@ -91,10 +131,14 @@ const CreateCourse: React.FC = () => {
             value={courseTitle}
           />
 
-          <Button
-            text={BUTTON_TEXT.create_new_course_text}
-            onClick={createCourseHandler}
-          />
+          {!course ? (
+            <Button
+              text={BUTTON_TEXT.create_new_course_text}
+              onClick={createCourseHandler}
+            />
+          ) : (
+            <Button text='Update' onClick={updateCourseHandler} />
+          )}
         </div>
 
         <div className={styles.description}>
@@ -102,6 +146,7 @@ const CreateCourse: React.FC = () => {
           <textarea
             placeholder={INPUT_TEXT.new_course_description_placeholder}
             onChange={addingDescription}
+            value={courseDescription}
           />
         </div>
       </div>
@@ -127,6 +172,7 @@ const CreateCourse: React.FC = () => {
             placeholder={INPUT_TEXT.new_course_duration_placeholder}
             type={INPUT_TEXT.type_number}
             onChange={setDuration}
+            value={durationInMinutes}
           />
           <p className={styles.duration}>
             Duration: <span>{duration.hours}</span>:
@@ -143,18 +189,18 @@ const CreateCourse: React.FC = () => {
                 onClick={() => addAuthorToCourse(author)}
               />
 
-              {/* <button
+              <button
                 onClick={() => {
                   dispatch(deleteAuthor(author.id));
                   console.log(author.id);
                 }}
               >
                 DELETE
-              </button> */}
+              </button>
             </div>
           ))}
           <p className={styles.titles}>Course author</p>
-          {courseAuthors.map((author) => (
+          {authorsOfCourse(courseAuthors).map((author) => (
             <div key={author.id} className={styles.courseAuthors}>
               <span key={author.id}>{author.name}</span>
               <Button
@@ -169,4 +215,4 @@ const CreateCourse: React.FC = () => {
   );
 };
 
-export default CreateCourse;
+export default CourseForm;

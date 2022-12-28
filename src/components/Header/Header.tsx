@@ -7,7 +7,7 @@ import Button from '../../common/Button/Button';
 import { BUTTON_TEXT } from '../../constants';
 
 import styles from './Header.module.css';
-import { logout } from '../../store/user/reducer';
+import { deleteUser } from '../../store/user/reducer';
 import { useNavigate } from 'react-router-dom';
 
 const Header: React.FC = () => {
@@ -18,7 +18,7 @@ const Header: React.FC = () => {
 
   const exit = () => {
     navigate('/login');
-    dispatch(logout());
+    dispatch(deleteUser());
     localStorage.clear();
   };
   const userName = useAppSelector((state) => state.user.user.name);

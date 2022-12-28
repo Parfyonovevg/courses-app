@@ -10,11 +10,11 @@ import { pipeDuration } from '../../helpers/pipeDuration';
 import { useAppSelector } from '../../hooks';
 
 import styles from './Courses.module.css';
-import { getUser } from '../../store/selectors';
+import { getAuthors, getCourses, getUser } from '../../store/selectors';
 
 const Courses: React.FC = () => {
-  const allCourses = useAppSelector((state) => state.courses.list);
-  const allAuthors = useAppSelector((state) => state.authors.list);
+  const allCourses = useAppSelector(getCourses);
+  const allAuthors = useAppSelector(getAuthors);
 
   const [searchInput, setSearchInput] = useState('');
   const [visibleCourses, setVisibleCourses] = useState(allCourses);
@@ -46,11 +46,6 @@ const Courses: React.FC = () => {
     );
   };
   const reset = () => setVisibleCourses(allCourses);
-
-  const coursesDate = () => {
-    return allCourses.map((course) => course.creationDate);
-  };
-
   return (
     <>
       <div className={styles.coursesHeader}>
